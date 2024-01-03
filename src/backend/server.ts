@@ -1,13 +1,14 @@
 import path from 'path';
 
-import express, {NextFunction, Request, Response} from "express";
+import express, {Express, NextFunction, Request, Response} from "express";
 
-const distPath = process.env.DIST_PATH || path.resolve(process.cwd(), "dist");
+const distPath: string = process.env.DIST_PATH || path.resolve(process.cwd(), "dist");
+const port: string = process.env.PORT || "3000";
 
-const app = express();
+const app: Express = express();
 
 // Custom middleware to log requests
-function logRequests(req: Request, res: Response, next: NextFunction) {
+function logRequests(req: Request, res: Response, next: NextFunction): void {
     console.log("Received request for:", req.url);
     next(); // Pass control to the next handler
 }
@@ -25,5 +26,5 @@ app.get("/*", (req: Request, res: Response) => {
     res.sendFile(path.resolve(distPath, "frontend", "index.html"));
 });
 
-app.listen(process.env.PORT || 3000, () => console.log("Server running... " + new Date().toUTCString()));
+app.listen(port, () => console.log("Server running... " + new Date().toUTCString()));
 
