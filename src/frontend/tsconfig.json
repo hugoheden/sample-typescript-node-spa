@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.common.json",
+  "include": ["./**/*"],
+  "compilerOptions": {
+    "target": "es5",
+    "module": "es6",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "types": [
+    ]
+  }
+}
