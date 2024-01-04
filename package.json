@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "clean": "npx rimraf ./dist",
-    "build": "npx webpack-cli --config webpack.config.frontend.js && npx tsc -p src/backend/tsconfig.json",
+    "build": "npx webpack-cli --config webpack.config.frontend.js && npx tsc -p src/backend/tsconfig.json && npm run check-prod-deps",
+    "check-prod-deps": "node check-prod-deps.js",
     "rebuild": "npm run clean && npm run build",
     "start": "node dist/backend/server.js",
     "dev:backend": "npx ts-node-dev --project src/backend/tsconfig.json  --respawn --transpile-only src/backend/server.ts",

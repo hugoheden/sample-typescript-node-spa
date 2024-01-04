@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "is-buffer": "^2.0.5",
+    "is-number": "^7.0.0",
+    "kind-of": "^6.0.3"
+  }
+}
