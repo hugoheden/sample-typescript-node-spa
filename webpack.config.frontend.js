@@ -1,8 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
-    // TODO - mode should be determined by an environment variable:
-    mode: 'development',
+    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     entry: './src/frontend/static/spa/index.ts',
     module: {
         rules: [

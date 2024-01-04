@@ -3,15 +3,14 @@
   "version": "1.0.0",
   "scripts": {
     "clean": "npx rimraf ./dist",
-    "build": "npx webpack-cli --config webpack.config.frontend.js && npx tsc -p src/backend/tsconfig.json && npm run check-prod-deps",
+    "build": "npx cross-env NODE_ENV=production webpack-cli --config webpack.config.frontend.js && npx tsc -p src/backend/tsconfig.json && npm run check-prod-deps",
     "check-prod-deps": "node check-prod-deps.js",
     "rebuild": "npm run clean && npm run build",
     "start": "node dist/backend/server.js",
     "dev:backend": "npx ts-node-dev --project src/backend/tsconfig.json  --respawn --transpile-only src/backend/server.ts",
-    "dev:frontend": "npx webpack serve --config webpack.config.frontend.js",
+    "dev:frontend": "npx cross-env NODE_ENV=development webpack serve --config webpack.config.frontend.js",
     "dev": "npx concurrently --kill-others --prefix-colors auto --names frontend,backend \"npm run dev:frontend\" \"npm run dev:backend\"",
     "lint": "npx eslint ./src",
-    "WiP-check-prod-deps": "node WiP-check-prod-deps.mjs --production-src-dirs ./src/backend/",
     ".TODO-TEST-LATER.lint:fix": "npx eslint ./src --fix"
   },
   "devDependencies": {
@@ -20,6 +19,7 @@
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "@typescript-eslint/parser": "^6.17.0",
     "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
     "css-loader": "^6.8.1",
     "eslint": "^8.56.0",
     "eslint-plugin-import": "^2.29.1",
