@@ -1,16 +1,20 @@
+import CommentDom from "./CommentDom";
+
 export default class DRAFT_CommentComponent {
     #currentProps
     #mutableState;
-    #domTree;
+    // #domTree;
     #fetcher;
     #commentMetadataComponent;
+    #commentDom;
 
     constructor(initialProps, domContainerElement, fetcher) {
-        this.#domTree = domContainerElement.appendChild(DRAFT_CommentComponent.createTemplateDomTree());
+        this.#commentDom = new CommentDom();
+        domContainerElement.appendChild(commentDom.getHtmlElement());
         // A "static" subcomponent (meaning it will remain for the lifetime of this component - although its props may change)
         this.#commentMetadataComponent = new CommentMetadataComponent(
             initialProps,
-            this.#domTree.querySelector("#comment-metadata"),
+            this.#commentDom.getCommentMetadataElement(),
             fetcher
         );
         this.#fetcher = fetcher;
@@ -32,9 +36,8 @@ export default class DRAFT_CommentComponent {
     render = () => {
         // - Update the DOM tree
         // TODO - sanitize/validate initialProps.postId and initialProps.commentId to avoid malicious injections
-        this.#domTree.querySelector("#static.postId").textContent = this.#mutableState.postId;
-        this.#domTree.querySelector("#static.commentId").textContent = this.#mutableState.commentId;
-
+        this.#commentDom.setPostIdCommentId(this.#mutableState.postId, this.#mutableState.commentId);
+        this.#commentDom.setCommentText(this.#mutableState.commentText);
         // for each subcomponent, call render()
         this.#commentMetadataComponent.render();
     }
@@ -55,29 +58,6 @@ export default class DRAFT_CommentComponent {
         this.#mutableState.commentText = await this.#fetcher.fetchCommentText(this.#currentProps.postId, this.#currentProps.commentId);
         // TODO Perhaps we can add/remove subcomponents here, based on the fetch result?
         await this.#commentMetadataComponent.longRunningBuildState();
-    }
-
-    static createTemplateDomTree = () => {
-        // TODO - use an import statement to import the template HTML file. Webpack will bundle it into the bundle.js file(?)
-        //  and perhaps remove any source code comments?
-        const templateHtml = `
-            <div>
-                <h1>Comment</h1>
-                <p>You are viewing <div id="postId"></div>#<div id="commentId"></div></p>
-                
-                <!-- author, date/time, likes and stuff, populated by some "CommentMetadataComponent" (TODO) -->
-                <div id="comment-metadata">&nbsp;</div>
-
-                <!-- populated by this component (TODO) -->
-                <div id="comment-text">Loading...</div>
-                
-                <!-- list of comments to the comment - populated by this component (TODO)-->
-                <div id="comment-comments"></div>
-            </div>
-        `;
-        const smallDomTree = document.createElement("div");
-        smallDomTree.outerHTML = templateHtml;
-        return smallDomTree;
     }
 
 
