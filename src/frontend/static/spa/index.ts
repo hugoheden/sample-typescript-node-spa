@@ -110,7 +110,6 @@ class Router {
         if (element !== null) {
             element.innerHTML = await view.getHtml();
         }
-
     }
 }
 
