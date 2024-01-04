@@ -1,15 +1,15 @@
 import AbstractView from "./AbstractView";
 import ViewParameters from "./ViewParamenters";
 
-export default class extends AbstractView {
+export default class PostView extends AbstractView {
     private readonly postId: string;
     private readonly commentId: string;
 
     constructor(params: ViewParameters) {
         super();
+        super.setTitle("Viewing Post");
         this.postId = params.id;
         this.commentId = params.commentId;
-        this.setTitle("Viewing Post");
     }
 
     async getHtml() {

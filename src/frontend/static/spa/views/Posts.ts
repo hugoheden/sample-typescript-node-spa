@@ -1,7 +1,7 @@
 import AbstractView from "./AbstractView";
 import ViewParameters from "./ViewParamenters";
 
-export default class extends AbstractView {
+export default class Posts extends AbstractView {
 
     constructor(_: ViewParameters) {
         super();
