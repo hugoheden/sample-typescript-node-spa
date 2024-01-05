@@ -1,25 +1,27 @@
-import AbstractView from "./views/AbstractView";
-import ViewParameters from "./views/ViewParamenters";
-import Dashboard from "./views/Dashboard";
-import Posts from "./views/Posts";
-import PostView from "./views/PostView";
-import Settings from "./views/Settings";
 import "../css/index.css";
+import IComponent from "./IComponent";
+import Props from "./Props";
+import DashboardComponent from "./components/dashboard/DashboardComponent";
+import CommentComponent from "./components/comment/CommentComponent";
+import PostComponent from "./components/post/PostComponent";
 
-// This file is the entry point for the frontend (i.e client side) single-page application.
+// This file is the entry point for the frontend (i.e. client side) single-page application.
 // It's where we define the routes and the request handlers for those routes.
-class Route<ViewType extends AbstractView> {
-    // The `new` indicates that the viewConstructor is not any old function, but a _constructor_ function (for ViewType).
-    // Such a constructor function can be referenced (not called) by just writing a class name, like `viewConstructor = Dashboard`.
-    private readonly viewConstructor: new (vp: ViewParameters) => ViewType;
+class Route<ComponentType extends IComponent> {
+    // The `new` indicates that the componentConstructor is not any old function, but a _constructor_ function (for ComponentType).
+    // Such a constructor function can be referenced (not called) by just writing a class name, like `componentConstructor = Dashboard`.
+    private readonly componentConstructor: new (p: Props) => ComponentType;
     // routePath is just for logging when debugging:
     private readonly routePath: string;
     private readonly pathnameMatcher: RegExp;
     private readonly parameterNames: string[];
+    // Lazily constructed (hence potentially undefined, and mutable):
+    private component: ComponentType | undefined;
 
-    constructor(routePath: string, viewConstructor: new (vp: ViewParameters) => ViewType) {
+    constructor(routePath: string, componentConstructor: new (p: Props) => ComponentType) {
+        console.log("Constructing route: " + routePath);
         this.routePath = routePath;
-        this.viewConstructor = viewConstructor;
+        this.componentConstructor = componentConstructor;
         this.pathnameMatcher = Route.constructPathnameRegex(routePath);
         this.parameterNames = Route.extractParameterNames(routePath);
     }
@@ -48,7 +50,7 @@ class Route<ViewType extends AbstractView> {
      * If it was a match, on the other hand, a "parameter-object" is returned, such as: {id: "123", comment_id: "456"},
      * where the keys are the names of the route parameters, and the values are the values of the route parameters.
      */
-    matchPathnameToView = (pathname: string): null | ViewType => {
+    matchPathnameToComponent = (pathname: string): null | ComponentType => {
         const match = pathname.match(this.pathnameMatcher);
         if (match === null) {
             return null;
@@ -62,36 +64,46 @@ class Route<ViewType extends AbstractView> {
         const paramsArray = this.parameterNames.map((key, i) => {
             return [key, match[i]];
         });
-        const paramsObject: ViewParameters = Object.fromEntries(paramsArray);
-        return new this.viewConstructor(paramsObject);
+        const propsObject: Props = Object.fromEntries(paramsArray);
+        if (this.component === undefined) {
+            console.log("Creating new component");
+            this.component = new this.componentConstructor(propsObject);
+        } else {
+            console.log("Updating new component");
+            this.component.onPropsUpdated(propsObject);
+        }
+        // TODO - this feels weird:
+        this.component.refresh();
+        return this.component;
     }
 }
 
 class Router {
-    private readonly routes: Route<AbstractView>[];
-    // If no matching route is found, then this default view will be used:
-    private readonly defaultView = Dashboard;
+    private readonly routes: Route<IComponent>[];
+    // If no matching route is found, then this default component will be used:
+    private readonly defaultComponent = DashboardComponent;
+    private readonly componentContainerElement: HTMLElement;
 
     constructor() {
+        console.log("Constructing Router at time: " + new Date().toUTCString());
+        this.componentContainerElement = <HTMLElement>document.querySelector("#app")
         this.routes = [
-            new Route("/", Dashboard),
-            new Route("/posts", Posts),
-            new Route("/posts/:id", PostView),
-            new Route("/posts/:id/comments", PostView),
-            new Route("/posts/:id/comments/:commentId", PostView),
-            new Route("/settings", Settings)
+            new Route("/", DashboardComponent),
+            new Route("/posts/:postId", PostComponent),
+            new Route("/posts/:postId/comments/:commentId", CommentComponent),
+            // TODO - more components here....
         ];
     }
 
-    private selectView = (pathname: string): AbstractView => {
+    private selectComponent = (pathname: string): IComponent => {
         for (const route of this.routes) {
-            const view = route.matchPathnameToView(pathname);
-            if (view !== null) {
-                return view;
+            const component = route.matchPathnameToComponent(pathname);
+            if (component !== null) {
+                return component;
             }
         }
         // Default if no match:
-        return new this.defaultView();
+        return new this.defaultComponent();
     }
 
     route = async () => {
@@ -105,23 +117,24 @@ class Router {
             window.location.replace(pathname.slice(0, -1));
             return;
         }
-        const view = this.selectView(pathname);
-        const element = document.querySelector("#app");
-        if (element !== null) {
-            element.innerHTML = await view.getHtml();
-        }
+        const component = this.selectComponent(pathname);
+        const containerElement = <Element>document.querySelector("#app");
+        component.getComponentDom().mountOn(containerElement);
     }
 }
 
 const router = new Router();
 
 window.addEventListener("popstate", _ => {
+    console.log("popstate");
     router.route();
 });
 
 document.addEventListener("DOMContentLoaded", () => {
     document.body.addEventListener("click", e => {
+        alert("click: " + JSON.stringify(e.target) + ' ' + typeof(e.target))
         if (e.target instanceof HTMLAnchorElement && e.target.matches("[data-link]")) {
+            alert("yes click");
             // Call preventDefault() to prevent the default action of the anchor tag, which is for the browser to make an
             // HTTP GET request for the URL specified in the href attribute. This is an SPA, so we don't want that -
             // we will handle the navigation ourselves.

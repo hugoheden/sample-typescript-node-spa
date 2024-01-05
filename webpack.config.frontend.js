@@ -2,7 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-    entry: './src/frontend/static/spa/index.ts',
+    entry: './src/frontend/static/spa2/index.ts',
     module: {
         rules: [
             {
@@ -17,7 +17,11 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                use: ['style-loader', 'css-loader'] // Use these loaders for CSS files
+                use: ['style-loader', 'css-loader']
+            },
+            {
+                test: /\.html$/,
+                use: ['html-loader']
             }
         ],
     },
