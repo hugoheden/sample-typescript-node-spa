@@ -4,14 +4,14 @@ import Props from "../../Props";
 import CommentState from "./CommentState";
 
 export default class CommentComponent implements IComponent {
-    private readonly commentDom: CommentDom;
+    private readonly componentDom: CommentDom;
     private currentProps: Props;
     private mutableState: CommentState;
     // private readonly dataFetcher: DataFetcher;
     // private readonly commentMetadataComponent;
 
     constructor(initialProps: Props /*, dataFetcher: DataFetcher */) {
-        this.commentDom = new CommentDom();
+        this.componentDom = new CommentDom();
         // TODO - a "static" subcomponent (meaning it will remain for the lifetime of this
         //  component - although its state may change):
         // this.commentMetadataComponent = new CommentMetadataComponent(
@@ -36,8 +36,10 @@ export default class CommentComponent implements IComponent {
 
     /** Uses the current props and state to render/update the component's DOM. */
     render = () => {
-        this.commentDom.setPostIdCommentId(this.currentProps.postId, this.currentProps.commentId);
-        this.commentDom.setCommentText(this.currentProps.commentText);
+        // TODO - this.currentProps is user input. Validate to avoid malicious injections (XSS, etc.)
+        document.title = `SPA: ${this.constructor.name}`;
+        this.componentDom.setPostIdCommentId(this.currentProps.postId, this.currentProps.commentId);
+        this.componentDom.setCommentText(this.currentProps.commentText);
     };
 
     refresh = async () => {
@@ -45,16 +47,16 @@ export default class CommentComponent implements IComponent {
     };
 
     /** Uses the current (presumably new/updated) props, and the previous state, to calculate what the next state should be. */
-    private calculateState() {
+    private calculateState = () => {
         if (!this.currentProps.postId || !this.currentProps.commentId) {
             throw new Error('Bad props - missing postId or commentId: ' + JSON.stringify(this.currentProps));
         }
         // TODO ...?
         return new CommentState();
-    }
+    };
 
     getComponentDom = () => {
-        return this.commentDom;
+        return this.componentDom;
     }
 
 }

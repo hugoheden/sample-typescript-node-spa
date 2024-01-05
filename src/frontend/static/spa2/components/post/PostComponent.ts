@@ -4,14 +4,14 @@ import Props from "../../Props";
 import PostState from "./PostState";
 
 export default class PostComponent implements IComponent {
-    private readonly postDom: PostDom;
+    private readonly componentDom: PostDom;
     private currentProps: Props;
     private mutableState: PostState;
 
     // private readonly dataFetcher: DataFetcher;
 
     constructor(initialProps: Props /*, dataFetcher: DataFetcher */) {
-        this.postDom = new PostDom();
+        this.componentDom = new PostDom();
         this.currentProps = initialProps;
         this.mutableState = this.calculateState();
         this.render();
@@ -28,8 +28,10 @@ export default class PostComponent implements IComponent {
 
     /** Uses the current props and state to render/update the component's DOM. */
     render = () => {
-        this.postDom.setPostId(this.currentProps.postId);
-        this.postDom.setPostDoc("NO POST DOC YET...");
+        // TODO - this.currentProps is user input. Validate to avoid malicious injections (XSS, etc.)
+        document.title = `SPA: ${this.constructor.name}`;
+        this.componentDom.setPostId(this.currentProps.postId);
+        this.componentDom.setPostDoc("NO POST DOC YET...");
     };
 
     refresh = async () => {
@@ -37,13 +39,16 @@ export default class PostComponent implements IComponent {
     };
 
     /** Uses the current (presumably new/updated) props, and the previous state, to calculate what the next state should be. */
-    private calculateState() {
+    private calculateState = () => {
+        if (!this.currentProps.postId) {
+            throw new Error('Bad props - missing postId: ' + JSON.stringify(this.currentProps));
+        }
         // TODO ...?
         return new PostState();
-    }
+    };
 
     getComponentDom = () => {
-        return this.postDom;
+        return this.componentDom;
     }
 
 }

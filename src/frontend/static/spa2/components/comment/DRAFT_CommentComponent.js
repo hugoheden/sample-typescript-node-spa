@@ -49,7 +49,7 @@ export default class DRAFT_CommentComponent {
             await this.#commentMetadataComponent.refresh();
         } catch (error) {
             // TODO - show some err msg to the user
-            console.error("Error during PostView refresh: ", error);
+            console.error("Error during refresh: ", error);
         }
     };
 

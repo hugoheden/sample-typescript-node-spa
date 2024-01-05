@@ -1,17 +1,17 @@
 import IComponent from "../../IComponent";
-import DashboardDom from "./DashboardDom";
+import PostListDom from "./PostListDom";
 import Props from "../../Props";
-import DashboardState from "./DashboardState";
+import PostListState from "./PostListState";
 
-export default class DashboardComponent implements IComponent {
-    private readonly componentDom: DashboardDom;
+export default class PostListComponent implements IComponent {
+    private readonly componentDom: PostListDom;
     private currentProps: Props;
-    private mutableState: DashboardState;
+    private mutableState: PostListState;
 
-    // This particular component has a constructor that accepts a no-param. It is a special component that can be
-    // used _without_ props - as a "default" or "fallback" component if no props were available to the application.
-    constructor(initialProps: Props = {}) {
-        this.componentDom = new DashboardDom();
+    // private readonly dataFetcher: DataFetcher;
+
+    constructor(initialProps: Props /*, dataFetcher: DataFetcher */) {
+        this.componentDom = new PostListDom();
         this.currentProps = initialProps;
         this.mutableState = this.calculateState();
         this.render();
@@ -30,6 +30,7 @@ export default class DashboardComponent implements IComponent {
     render = () => {
         // TODO - this.currentProps is user input. Validate to avoid malicious injections (XSS, etc.)
         document.title = `SPA: ${this.constructor.name}`;
+        this.componentDom.setPostList("no post list yet...");
     };
 
     refresh = async () => {
@@ -39,12 +40,11 @@ export default class DashboardComponent implements IComponent {
     /** Uses the current (presumably new/updated) props, and the previous state, to calculate what the next state should be. */
     private calculateState = () => {
         // TODO ...?
-        return new DashboardState();
+        return new PostListState();
     };
 
     getComponentDom = () => {
         return this.componentDom;
     }
-
 
 }

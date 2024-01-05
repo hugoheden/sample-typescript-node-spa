@@ -4,6 +4,8 @@ import Props from "./Props";
 import DashboardComponent from "./components/dashboard/DashboardComponent";
 import CommentComponent from "./components/comment/CommentComponent";
 import PostComponent from "./components/post/PostComponent";
+import PostListComponent from "./components/postlist/PostListComponent";
+import SettingsComponent from "./components/settings/SettingsComponent";
 
 // This file is the entry point for the frontend (i.e. client side) single-page application.
 // It's where we define the routes and the request handlers for those routes.
@@ -19,7 +21,6 @@ class Route<ComponentType extends IComponent> {
     private component: ComponentType | undefined;
 
     constructor(routePath: string, componentConstructor: new (p: Props) => ComponentType) {
-        console.log("Constructing route: " + routePath);
         this.routePath = routePath;
         this.componentConstructor = componentConstructor;
         this.pathnameMatcher = Route.constructPathnameRegex(routePath);
@@ -47,10 +48,11 @@ class Route<ComponentType extends IComponent> {
 
     /**
      * Match a user pathname, like "/posts/123/comments/456", to this route. If it did not match, null is returned.
-     * If it was a match, on the other hand, a "parameter-object" is returned, such as: {id: "123", comment_id: "456"},
+     * If it was a match, on the other hand, a "parameter-object" is created, such as: {id: "123", comment_id: "456"},
      * where the keys are the names of the route parameters, and the values are the values of the route parameters.
+     * Then the component of this route is updated with parameter-object, and returned.
      */
-    matchPathnameToComponent = (pathname: string): null | ComponentType => {
+    getComponentIfMatching = (pathname: string): null | ComponentType => {
         const match = pathname.match(this.pathnameMatcher);
         if (match === null) {
             return null;
@@ -66,14 +68,10 @@ class Route<ComponentType extends IComponent> {
         });
         const propsObject: Props = Object.fromEntries(paramsArray);
         if (this.component === undefined) {
-            console.log("Creating new component");
             this.component = new this.componentConstructor(propsObject);
         } else {
-            console.log("Updating new component");
             this.component.onPropsUpdated(propsObject);
         }
-        // TODO - this feels weird:
-        this.component.refresh();
         return this.component;
     }
 }
@@ -85,19 +83,20 @@ class Router {
     private readonly componentContainerElement: HTMLElement;
 
     constructor() {
-        console.log("Constructing Router at time: " + new Date().toUTCString());
         this.componentContainerElement = <HTMLElement>document.querySelector("#app")
         this.routes = [
             new Route("/", DashboardComponent),
+            new Route("/settings", SettingsComponent),
+            new Route("/posts", PostListComponent),
             new Route("/posts/:postId", PostComponent),
             new Route("/posts/:postId/comments/:commentId", CommentComponent),
             // TODO - more components here....
         ];
     }
 
-    private selectComponent = (pathname: string): IComponent => {
+    private getMatchingComponent = (pathname: string): IComponent => {
         for (const route of this.routes) {
-            const component = route.matchPathnameToComponent(pathname);
+            const component = route.getComponentIfMatching(pathname);
             if (component !== null) {
                 return component;
             }
@@ -117,9 +116,11 @@ class Router {
             window.location.replace(pathname.slice(0, -1));
             return;
         }
-        const component = this.selectComponent(pathname);
+        const component = this.getMatchingComponent(pathname);
         const containerElement = <Element>document.querySelector("#app");
+        component.render();
         component.getComponentDom().mountOn(containerElement);
+        component.refresh();
     }
 }
 
@@ -132,9 +133,7 @@ window.addEventListener("popstate", _ => {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.body.addEventListener("click", e => {
-        alert("click: " + JSON.stringify(e.target) + ' ' + typeof(e.target))
         if (e.target instanceof HTMLAnchorElement && e.target.matches("[data-link]")) {
-            alert("yes click");
             // Call preventDefault() to prevent the default action of the anchor tag, which is for the browser to make an
             // HTTP GET request for the URL specified in the href attribute. This is an SPA, so we don't want that -
             // we will handle the navigation ourselves.
