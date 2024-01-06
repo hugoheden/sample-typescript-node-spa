@@ -1,5 +1,6 @@
 import html from './PostDom.fragment.html'
 import IComponentDom from "../../IComponentDom";
+import PostState from "./PostState";
 
 export default class PostDom implements IComponentDom {
     private readonly htmlElement: HTMLElement;
@@ -10,26 +11,28 @@ export default class PostDom implements IComponentDom {
         this.htmlElement.innerHTML = <string>html;
     }
 
-    mountOn = (parent: Element): void => {
+    mountOn = (parent: Element) => {
         parent.replaceChildren(this.htmlElement);
     };
 
-    setPostId(postId: number): void {
+    render = (state: PostState) => {
+        document.title = `${state.docTitle}`;
+        this.setPostId(state.postId);
+        this.setPostDoc(state.postDoc);
+    }
+
+    private setPostId = (postId: number) => {
         this.get('#post-id').textContent = `${postId}`;
         this.getAnchor('#prev-post').href = `/posts/${postId - 1}`;
         this.getAnchor('#next-post').href = `/posts/${postId + 1}`;
-    }
+    };
 
-    setPostDoc(postDoc: string): void {
+    private setPostDoc = (postDoc: string) => {
         this.get('#post-doc').textContent = postDoc;
-    }
+    };
 
-    private get(selectors: string) {
-        return <HTMLElement>this.htmlElement.querySelector(selectors);
-    }
+    private get = (selectors: string) => <HTMLElement>this.htmlElement.querySelector(selectors);
 
-    private getAnchor(selectors: string) {
-        return <HTMLAnchorElement>this.htmlElement.querySelector(selectors);
-    }
+    private getAnchor = (selectors: string) => <HTMLAnchorElement>this.htmlElement.querySelector(selectors);
 
 }

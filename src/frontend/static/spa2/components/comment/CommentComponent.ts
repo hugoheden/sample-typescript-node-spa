@@ -5,38 +5,39 @@ import CommentState from "./CommentState";
 
 export default class CommentComponent implements IComponent {
     private readonly componentDom: CommentDom;
-    private mutableState: CommentState;
+    private state: CommentState;
 
     constructor(initialProps: Props /*, dataFetcher: DataFetcher */) {
         this.componentDom = new CommentDom();
-        this.mutableState = CommentComponent.calculateState(initialProps);
+        this.state = CommentComponent.calculateState(initialProps);
     }
 
     /** Called by the parent component when new props are passed in.
      */
     onPropsUpdated = (props: Props) => {
-        this.mutableState = CommentComponent.calculateState(props);
+        this.state = CommentComponent.calculateState(props);
     };
 
 
     /** Uses the current props and state to render/update the component's DOM. */
     render = () => {
-        document.title = `SPA: ${this.constructor.name}`;
-        // TODO:
-        // this.componentDom.setPostIdCommentId(this.currentProps.postId, this.currentProps.commentId);
-        // this.componentDom.setCommentText(this.currentProps.commentText);
+        this.componentDom.render(this.state);
     };
 
     refresh = async () => {
     };
 
     /** Uses the current (presumably new/updated) props, and perhaps the previous state, to calculate what the next state should be. */
-    private static calculateState = (props: Props) => {
-        // if (!this.currentProps.postId || !this.currentProps.commentId) {
-        //     throw new Error('Bad props - missing postId or commentId: ' + JSON.stringify(this.currentProps));
-        // }
-        // TODO parse, validate, convert, store:
-        return new CommentState();
+    private static calculateState = (props: Props): CommentState => {
+        const postId = parseInt(props.postId);
+        const commentId = parseInt(props.commentId);
+        return {
+            props: {...props},
+            docTitle: "Comment",
+            postId: postId,
+            commentId: commentId,
+            commentText: "some comment should be visible here"
+        };
     };
 
     getComponentDom = () => {

@@ -1,5 +1,6 @@
 import html from './PostListDom.fragment.html'
 import IComponentDom from "../../IComponentDom";
+import PostListState from "./PostListState";
 
 export default class PostListDom implements IComponentDom {
     private readonly htmlElement: HTMLElement;
@@ -10,16 +11,19 @@ export default class PostListDom implements IComponentDom {
         this.htmlElement.innerHTML = <string>html;
     }
 
-    mountOn = (parent: Element): void => {
+    mountOn = (parent: Element) => {
         parent.replaceChildren(this.htmlElement);
     };
 
-    setPostList(postList: string): void {
-        this.get('#post-list').textContent = postList;
+    render = (state: PostListState) => {
+        document.title = `${state.docTitle}`;
+        this.setPostList(state.postList);
     }
 
-    private get(selectors: string) {
-        return <HTMLElement>this.htmlElement.querySelector(selectors);
-    }
+    private setPostList = (postList: string) => {
+        this.get('#post-list').textContent = postList;
+    };
+
+    private get = (selectors: string) => <HTMLElement>this.htmlElement.querySelector(selectors);
 
 }

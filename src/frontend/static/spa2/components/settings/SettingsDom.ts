@@ -1,5 +1,6 @@
 import html from './SettingsDom.fragment.html'
 import IComponentDom from "../../IComponentDom";
+import SettingsState from "./SettingsState";
 
 export default class SettingsDom implements IComponentDom {
     private readonly htmlElement: HTMLElement;
@@ -10,8 +11,11 @@ export default class SettingsDom implements IComponentDom {
         this.htmlElement.innerHTML = <string>html;
     }
 
-    mountOn = (parent: Element): void => {
+    mountOn = (parent: Element) => {
         parent.replaceChildren(this.htmlElement);
     };
 
+    render = (state: SettingsState) => {
+        document.title = `SPA: ${state.docTitle}`;
+    };
 }

@@ -5,33 +5,36 @@ import SettingsState from "./SettingsState";
 
 export default class SettingsComponent implements IComponent {
     private readonly componentDom: SettingsDom;
-    private mutableState: SettingsState;
+    private state: SettingsState;
 
     // This particular component has a constructor that accepts a no-param. It is a special component that can be
     // used _without_ props - as a "default" or "fallback" component if no props were available to the application.
-    constructor(initialProps: Props = {}) {
+    constructor(initialProps: Props) {
         this.componentDom = new SettingsDom();
-        this.mutableState = SettingsComponent.calculateState(initialProps);
+        this.state = SettingsComponent.calculateState(initialProps);
     }
 
     /** Called by the parent component when new props are passed in.
      */
     onPropsUpdated = (props: Props) => {
-        this.mutableState = SettingsComponent.calculateState(props);
+        this.state = SettingsComponent.calculateState(props);
     };
 
 
     /** Uses the current props and state to render/update the component's DOM. */
     render = () => {
-        document.title = `SPA: ${this.constructor.name}`;
+        this.componentDom.render(this.state);
     };
 
     refresh = async () => {
     };
 
     /** Uses the current (presumably new/updated) props, and perhaps the previous state, to calculate what the next state should be. */
-    private static calculateState = (props: Props) => {
-        return new SettingsState();
+    private static calculateState = (props: Props): SettingsState => {
+        return {
+            props: {...props},
+            docTitle: "Settings"
+        };
     };
 
     getComponentDom = () => {

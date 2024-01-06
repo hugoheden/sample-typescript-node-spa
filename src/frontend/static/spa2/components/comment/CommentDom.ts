@@ -1,5 +1,6 @@
 import html from './CommentDom.fragment.html'
 import IComponentDom from "../../IComponentDom";
+import CommentState from "./CommentState";
 
 export default class CommentDom implements IComponentDom {
     private readonly htmlElement: HTMLElement;
@@ -10,22 +11,24 @@ export default class CommentDom implements IComponentDom {
         this.htmlElement.innerHTML = <string>html;
     }
 
-    mountOn = (parent: Element): void => {
+    mountOn = (parent: Element) => {
         parent.replaceChildren(this.htmlElement);
     };
 
-    setPostIdCommentId(postId: string, commentId: string): void {
-        console.log('setPostIdCommentId: ' + postId + ', ' + commentId)
-        this.get('#post-id').textContent = postId;
-        this.get('#comment-id').textContent = commentId;
+    render = (state: CommentState) => {
+        this.setPostIdCommentId(state.postId, state.commentId);
+        this.setCommentText(state.commentText);
     }
 
-    setCommentText(commentText: string): void {
+    private setPostIdCommentId = (postId: number, commentId: number) => {
+        this.get('#post-id').textContent = `${postId}`;
+        this.get('#comment-id').textContent = `${commentId}`;
+    };
+
+    private setCommentText = (commentText: string) => {
         this.get('#comment-text').textContent = commentText;
-    }
+    };
 
-    private get(selectors: string) {
-        return <HTMLElement>this.htmlElement.querySelector(selectors);
-    }
+    private get = (selectors: string) => <HTMLElement>this.htmlElement.querySelector(selectors);
 
 }

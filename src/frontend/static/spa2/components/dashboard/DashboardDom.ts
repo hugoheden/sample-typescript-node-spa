@@ -1,5 +1,6 @@
 import html from './DashboardDom.fragment.html'
 import IComponentDom from "../../IComponentDom";
+import DashboardState from "./DashboardState";
 
 export default class DashboardDom implements IComponentDom {
     private readonly htmlElement: HTMLElement;
@@ -10,8 +11,11 @@ export default class DashboardDom implements IComponentDom {
         this.htmlElement.innerHTML = <string>html;
     }
 
-    mountOn = (parent: Element): void => {
+    mountOn = (parent: Element) => {
         parent.replaceChildren(this.htmlElement);
     };
 
+    render = (state: DashboardState) => {
+        document.title = `${state.docTitle}`;
+    }
 }

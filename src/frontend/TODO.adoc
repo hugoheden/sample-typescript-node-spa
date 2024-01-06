@@ -28,8 +28,13 @@
 
 == TODOs
 
-* Components: Pass the complete `ComponentState` to the `ComponentDom` instance
-* ComponentDom does the `document.title = ` thing
+* [.line-through]#Components: Pass the complete `ComponentState` to the `ComponentDom` instance#
+* [.line-through]#ComponentDom does the `document.title = ` thing#
+* [.line-through]#Rename `mutableState` to `state`#
+* [.line-through]#The state objects: Use interface instead.#
+* The state objects: Should they contain the subcomponents as well?
+They are part of the mutable state, I guess... but they are not really state.
+So, the conventional way of thinking here is: no...?
 * Move some of the code in `index.html` to a Main component.
 A main navigation component, that uses the Router internally?
 Or just a simple component that renders the navigation bar?
