@@ -116,7 +116,7 @@ export default class Router {
     /**
      * This method is called when the user navigates to a new URL, or when the user refreshes the page.
      */
-    route = async () => {
+    route = () => {
         // If pathname is not "/", then remove any trailing slash:
         const pathname = window.location.pathname;
         if (pathname !== "/" && pathname.endsWith("/")) {

@@ -39,6 +39,7 @@ So, the conventional way of thinking here is: no...?
 A main navigation component, that uses the Router internally?
 Or just a simple component that renders the navigation bar?
 * Global error handling - redirect to an error page
+* Should `render` be called again after `refresh()`? What if the component did not change? Is another render a performance problem?
 * Some event handler
 * Input form
 * Components: method for parse props
