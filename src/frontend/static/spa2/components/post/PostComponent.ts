@@ -5,46 +5,64 @@ import PostState from "./PostState";
 
 export default class PostComponent implements IComponent {
     private readonly componentDom: PostDom;
-    private currentProps: Props;
     private mutableState: PostState;
 
     // private readonly dataFetcher: DataFetcher;
 
     constructor(initialProps: Props /*, dataFetcher: DataFetcher */) {
         this.componentDom = new PostDom();
-        this.currentProps = initialProps;
-        this.mutableState = this.calculateState();
-        this.render();
+        this.mutableState = PostComponent.calculateState(initialProps);
     }
 
     /** Called by the parent component when new props are passed in.
-     * Could also be called by the component itself, if it needs to update its own props.
-     * */
+     */
     onPropsUpdated = (props: Props) => {
-        this.currentProps = props;
-        this.mutableState = this.calculateState();
+        this.mutableState = PostComponent.calculateState(props);
     };
+
+    // /** Called by the parent component when new props are passed in.
+    //  */
+    // onPropsUpdated_NEW = (props: Props) => {
+    //     // Might throw in exceptional cases. If so, we will let it propagate up to a global handler:
+    //     this.mutableState = PostComponent.calculateState(props);
+    //     // The calculated state might still be an "error state". We might handle that here.
+    //     // In any case, the `render` method is then responsible for rendering the error state,
+    //     // and ignore the other state (which is now bogus).
+    //     if (this.mutableState.getError()) {
+    //         // We can let props cascade down to subcomponents even if we have an error. We might decide on a case-by-case basis.
+    //         return;
+    //     }
+    //     // Might throw in exceptional cases. If so, we will let it propagate up to a global handler:
+    //     this.cascadeToSubcomponents(props);
+    // };
 
 
     /** Uses the current props and state to render/update the component's DOM. */
     render = () => {
-        // TODO - this.currentProps is user input. Validate to avoid malicious injections (XSS, etc.)
         document.title = `SPA: ${this.constructor.name}`;
-        this.componentDom.setPostId(this.currentProps.postId);
-        this.componentDom.setPostDoc("NO POST DOC YET...");
+        this.componentDom.setPostId(this.mutableState.postId);
+        this.componentDom.setPostDoc(this.mutableState.postDoc);
     };
 
     refresh = async () => {
-        // TODO - do some async work... then call render() when done. Also, potentially let the signal cascade down to subcomponents?
     };
 
-    /** Uses the current (presumably new/updated) props, and the previous state, to calculate what the next state should be. */
-    private calculateState = () => {
-        if (!this.currentProps.postId) {
-            throw new Error('Bad props - missing postId: ' + JSON.stringify(this.currentProps));
+    /** Uses the current (presumably new/updated) props, and perhaps the previous state, to calculate what the next state should be. */
+    private static calculateState = (props: Props): PostState => {
+        if (!props.postId) {
+            // TODO set error state and return
         }
-        // TODO ...?
-        return new PostState();
+        // props.postId is a string. "Convert" it to a number (which is in accordance with our business model).
+        // If the conversion fails, we will get NaN. We will treat that as an error:
+        const postIdAsNumber: number = parseInt(props.postId);
+        if (isNaN(postIdAsNumber)) {
+            // TODO set error state and return
+        }
+        const propsCopy: Props = {
+            // Defensive copy:
+            ...props,
+        }
+        return new PostState(propsCopy, postIdAsNumber, "TODO - get post doc from data fetcher, or something");
     };
 
     getComponentDom = () => {

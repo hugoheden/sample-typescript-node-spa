@@ -1,0 +1,92 @@
+== Component
+
+* `constructor` and `public onPropsUpdated`
+** take `(props: Props)` as input.
+** `this.mutableState = DashboardComponent.calculateState(props);`
+** `onPropsUpdated` can add remove subcomponents
+** cascade /construction and/ props to sub-components
+** Does not call render etc at all.
+** No async work, just simple state calculation.
+
+* `private static calculateState(props, state)`
+** validates props and state
+** returns new state
+** might throw an error, but only in exceptional cases that the app should not recover from.
+** Typical errors should be reflected in the state. `state.getError()`.
+
+* `public render()`
+** Uses only the state to render the component (modify the DOM).
+** Cascades the "signal" to subcomponents.
+** No other side effects.
+
+* `public async refresh()`
+** another way to update the state
+** Async work allowed here.
+** Typically: fetches data from the backend.
+** Cascades the "signal" to subcomponents?
+** Should we allow `render()` here? ... probably not, I have no idea.
+
+== TODOs
+
+* Components: Pass the complete `ComponentState` to the `ComponentDom` instance
+* ComponentDom does the `document.title = ` thing
+* Move some of the code in `index.html` to a Main component.
+A main navigation component, that uses the Router internally?
+Or just a simple component that renders the navigation bar?
+* Global error handling - redirect to an error page
+* Some event handler
+* Input form
+* Components: method for parse props
+* Async fetching
+** AbortController
+** When fetching is done, validate job still "relevant"
+** Debouncing - only fetch when user has stopped typing
+** Throttling - only fetch every 500ms
+** Caching - don't fetch if we already have the data
+* Use a library for state management:
+
+
+** Redux
+** MobX
+** Apollo
+* Use a library for routing:
+** React Router
+* Use a library for styling:
+** Styled Components
+** Emotion
+** Glamorous
+* Use a library for forms:
+** Formik
+** Redux Form
+* Use a library for async fetching:
+** Redux Saga
+** Redux Thunk
+** Apollo
+* Use a library for testing:
+** Jest
+** Enzyme
+** React Testing Library
+* Use a library for internationalization:
+** React Intl
+* Use a library for animations:
+** React Spring
+** React Motion
+** React Move
+* Use a library for charts:
+** Recharts
+** Victory
+* Use a library for maps:
+** React Leaflet
+** Google Maps
+* Use a library for tables:
+** React Table
+** React Virtualized
+* Use a library for data visualization:
+** D3
+** React Vis
+* Use a library for date/time:
+** Moment
+** Date FNS
+* Use a library for async fetching:
+** Axios
+** Superagent

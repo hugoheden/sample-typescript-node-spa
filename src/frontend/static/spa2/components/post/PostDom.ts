@@ -14,8 +14,10 @@ export default class PostDom implements IComponentDom {
         parent.replaceChildren(this.htmlElement);
     };
 
-    setPostId(postId: string): void {
-        this.get('#post-id').textContent = postId;
+    setPostId(postId: number): void {
+        this.get('#post-id').textContent = `${postId}`;
+        this.getAnchor('#prev-post').href = `/posts/${postId - 1}`;
+        this.getAnchor('#next-post').href = `/posts/${postId + 1}`;
     }
 
     setPostDoc(postDoc: string): void {
@@ -24,6 +26,10 @@ export default class PostDom implements IComponentDom {
 
     private get(selectors: string) {
         return <HTMLElement>this.htmlElement.querySelector(selectors);
+    }
+
+    private getAnchor(selectors: string) {
+        return <HTMLAnchorElement>this.htmlElement.querySelector(selectors);
     }
 
 }

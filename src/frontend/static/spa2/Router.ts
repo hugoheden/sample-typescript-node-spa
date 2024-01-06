@@ -2,20 +2,21 @@ import "../css/index.css";
 import IComponent from "./IComponent";
 import Props from "./Props";
 
+// The `new` indicates that the componentConstructor is not any old function, but a _constructor_ function (for IComponent).
+type ComponentConstructor = new (p: Props) => IComponent;
 
 // The Router is where we define the routes and the request handlers for those routes.
-class Route<ComponentType extends IComponent> {
-    // The `new` indicates that the componentConstructor is not any old function, but a _constructor_ function (for ComponentType).
+class Route {
     // Such a constructor function can be referenced (not called) by just writing a class name, like `componentConstructor = Dashboard`.
-    private readonly componentConstructor: new (p: Props) => ComponentType;
+    private readonly componentConstructor: ComponentConstructor;
     // routePath is just for logging when debugging:
     private readonly routePath: string;
     private readonly pathnameMatcher: RegExp;
     private readonly parameterNames: string[];
     // Lazily constructed (hence potentially undefined, and mutable):
-    private component: ComponentType | undefined;
+    private component: IComponent | undefined;
 
-    constructor(routePath: string, componentConstructor: new (p: Props) => ComponentType) {
+    constructor(routePath: string, componentConstructor: ComponentConstructor) {
         this.routePath = routePath;
         this.componentConstructor = componentConstructor;
         this.pathnameMatcher = Route.constructPathnameRegex(routePath);
@@ -47,7 +48,7 @@ class Route<ComponentType extends IComponent> {
      * where the keys are the names of the route parameters, and the values are the values of the route parameters.
      * Then the component of this route is updated with parameter-object, and returned.
      */
-    getComponentIfMatching = (pathname: string): null | ComponentType => {
+    ifMatchingGetUpdatedComponent = (pathname: string): null | IComponent => {
         const match = pathname.match(this.pathnameMatcher);
         if (match === null) {
             return null;
@@ -75,24 +76,24 @@ export interface Routes {
     containerDomElement: HTMLElement,
     defaultComponent: new () => IComponent,
     // An array with tuples of the form ["/posts/:id", PostComponent]:
-    routes: [string, new (p: Props) => IComponent][],
+    routes: [string, ComponentConstructor][],
 }
 
 export default class Router {
-    private readonly routes: Route<IComponent>[];
+    private readonly routes: Route[];
     // If no matching route is found, then this default component will be used:
     private readonly defaultComponent;
     private readonly componentContainerElement: HTMLElement;
 
     constructor(routes: Routes) {
         const routesSpec: Routes = routes;
-        this.routes = this.buildRoutes(routesSpec);
+        this.routes = this.buildRoutes(routesSpec.routes);
         this.defaultComponent = routesSpec.defaultComponent;
         this.componentContainerElement = routesSpec.containerDomElement;
     }
 
-    buildRoutes = (routesSpec: Routes): Route<IComponent>[] => {
-        return routesSpec.routes.map(([routePath, componentConstructor]) => {
+    private buildRoutes = (r: [string, ComponentConstructor][]): Route[] => {
+        return r.map(([routePath, componentConstructor]) => {
             return new Route(routePath, componentConstructor);
         });
     }
@@ -103,7 +104,7 @@ export default class Router {
      */
     private getMatchingComponent = (pathname: string): IComponent => {
         for (const route of this.routes) {
-            const component = route.getComponentIfMatching(pathname);
+            const component = route.ifMatchingGetUpdatedComponent(pathname);
             if (component !== null) {
                 return component;
             }
@@ -127,7 +128,6 @@ export default class Router {
             return;
         }
         const component = this.getMatchingComponent(pathname);
-        const containerElement = <Element>document.querySelector("#app");
         component.render();
         component.getComponentDom().mountOn(this.componentContainerElement);
         component.refresh();

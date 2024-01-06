@@ -7,7 +7,6 @@ import PostComponent from "./components/post/PostComponent";
 import CommentComponent from "./components/comment/CommentComponent";
 
 // This file is the entry point for the frontend (i.e. client side) single-page application.
-
 const router = new Router({
     containerDomElement: <HTMLElement>document.querySelector("#app"),
     defaultComponent: DashboardComponent,

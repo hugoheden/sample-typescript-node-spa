@@ -5,40 +5,32 @@ import DashboardState from "./DashboardState";
 
 export default class DashboardComponent implements IComponent {
     private readonly componentDom: DashboardDom;
-    private currentProps: Props;
     private mutableState: DashboardState;
 
     // This particular component has a constructor that accepts a no-param. It is a special component that can be
     // used _without_ props - as a "default" or "fallback" component if no props were available to the application.
     constructor(initialProps: Props = {}) {
         this.componentDom = new DashboardDom();
-        this.currentProps = initialProps;
-        this.mutableState = this.calculateState();
-        this.render();
+        this.mutableState = DashboardComponent.calculateState(initialProps);
     }
 
     /** Called by the parent component when new props are passed in.
-     * Could also be called by the component itself, if it needs to update its own props.
-     * */
+     */
     onPropsUpdated = (props: Props) => {
-        this.currentProps = props;
-        this.mutableState = this.calculateState();
+        this.mutableState = DashboardComponent.calculateState(props);
     };
 
 
     /** Uses the current props and state to render/update the component's DOM. */
     render = () => {
-        // TODO - this.currentProps is user input. Validate to avoid malicious injections (XSS, etc.)
         document.title = `SPA: ${this.constructor.name}`;
     };
 
     refresh = async () => {
-        // TODO - do some async work... then call render() when done. Also, potentially let the signal cascade down to subcomponents?
     };
 
-    /** Uses the current (presumably new/updated) props, and the previous state, to calculate what the next state should be. */
-    private calculateState = () => {
-        // TODO ...?
+    /** Uses the current (presumably new/updated) props, and perhaps the previous state, to calculate what the next state should be. */
+    private static calculateState = (props: Props) => {
         return new DashboardState();
     };
 
