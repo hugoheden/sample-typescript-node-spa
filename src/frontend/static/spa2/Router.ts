@@ -5,7 +5,6 @@ import Props from "./Props";
 // The `new` indicates that the componentConstructor is not any old function, but a _constructor_ function (for IComponent).
 type ComponentConstructor = new (p: Props) => IComponent;
 
-// The Router is where we define the routes and the request handlers for those routes.
 class Route {
     // Such a constructor function can be referenced (not called) by just writing a class name, like `componentConstructor = Dashboard`.
     private readonly componentConstructor: ComponentConstructor;
@@ -79,6 +78,7 @@ export interface Routes {
     routes: [string, ComponentConstructor][],
 }
 
+// The Router is where we define the routes and the request handlers for those routes.
 export default class Router {
     private readonly routes: Route[];
     // If no matching route is found, then this default component will be used:
@@ -102,7 +102,7 @@ export default class Router {
      * Given a pathname, like "/posts/123/comments/456", return the component that matches that pathname.
      * If no component matches, then the default component is returned.
      */
-    private getMatchingComponent = (pathname: string): IComponent => {
+    private getMatchingUpdatedComponent = (pathname: string): IComponent => {
         for (const route of this.routes) {
             const component = route.ifMatchingGetUpdatedComponent(pathname);
             if (component !== null) {
@@ -127,9 +127,12 @@ export default class Router {
             window.location.replace(pathname.slice(0, -1));
             return;
         }
-        const component = this.getMatchingComponent(pathname);
+        const component = this.getMatchingUpdatedComponent(pathname);
         component.render();
         component.getComponentDom().mountOn(this.componentContainerElement);
-        component.refresh();
+        component.refresh()
+            .then(() => {
+                component.render();
+            });
     }
 }

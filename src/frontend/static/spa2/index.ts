@@ -1,10 +1,12 @@
 import "../css/index.css";
+import navigationHtml from './navigation/Navigation.fragment.html'
 import Router from "./Router";
 import DashboardComponent from "./components/dashboard/DashboardComponent";
 import SettingsComponent from "./components/settings/SettingsComponent";
 import PostListComponent from "./components/postlist/PostListComponent";
 import PostComponent from "./components/post/PostComponent";
 import CommentComponent from "./components/comment/CommentComponent";
+
 
 // This file is the entry point for the frontend (i.e. client side) single-page application.
 const router = new Router({
@@ -20,7 +22,6 @@ const router = new Router({
 });
 
 window.addEventListener("popstate", _ => {
-    console.log("popstate");
     router.route();
 });
 
@@ -35,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
             router.route();
         }
     });
+    (<HTMLElement>document.querySelector("#nav")).innerHTML = navigationHtml;
     router.route();
 });
 
