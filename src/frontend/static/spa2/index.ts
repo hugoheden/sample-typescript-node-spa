@@ -21,6 +21,68 @@ const router = new Router({
     ],
 });
 
+interface ErrorData {
+    type: 'onerror' | 'onunhandledrejection';
+    message: string;
+    source?: string;
+    lineno?: number;
+    colno?: number;
+    stack?: string;
+    url: string;
+    timestamp: string;
+}
+
+const sendErrorDetails = (errorData: ErrorData) => {
+    try {
+        const payload = JSON.stringify(errorData);
+        // TODO TODO - implement endpoint in backend.
+        if (!navigator.sendBeacon('/api/logError', payload)) {
+            // Fallback logging if sendBeacon fails (e.g., due to size limitations)
+            console.error('sendBeacon failed, logging to console instead', errorData);
+        }
+    } catch (logError) {
+        console.error('Error logging failed:', logError);
+    }
+};
+
+window.onerror = (message, source, lineno, colno, error) => {
+    let errorMessage: string;
+    if (typeof message === 'string') {
+        errorMessage = message;
+    } else if (message instanceof ErrorEvent) {
+        // ErrorEvent provides more detailed error information
+        errorMessage = message.message;
+    } else {
+        // For generic Event objects, provide a standard message
+        errorMessage = "An error occurred";
+    }
+    const errorData: ErrorData = {
+        type: 'onerror',
+        message: errorMessage,
+        source,
+        lineno,
+        colno,
+        stack: error?.stack,
+        url: window.location.href,
+        timestamp: new Date().toISOString()
+    };
+    sendErrorDetails(errorData);
+    // TODO TODO - make sure the /error page is actually routed/displayed correctly.
+    window.location.href = "/error";
+};
+
+window.onunhandledrejection = event => {
+    const errorData: ErrorData = {
+        type: 'onunhandledrejection',
+        message: event.reason?.message || 'No error message',
+        stack: event.reason?.stack,
+        url: window.location.href,
+        timestamp: new Date().toISOString()
+    };
+    sendErrorDetails(errorData);
+    window.location.href = "/error";
+};
+
 window.addEventListener("popstate", _ => {
     router.route();
 });

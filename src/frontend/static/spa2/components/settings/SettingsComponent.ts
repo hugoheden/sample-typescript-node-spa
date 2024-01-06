@@ -17,6 +17,8 @@ export default class SettingsComponent implements IComponent {
     /** Called by the parent component when new props are passed in.
      */
     onPropsUpdated = (props: Props) => {
+        console.log("SettingsComponent.onPropsUpdated", props);
+        throw new Error("blah blah problem");
         this.state = SettingsComponent.calculateState(props);
     };
 
