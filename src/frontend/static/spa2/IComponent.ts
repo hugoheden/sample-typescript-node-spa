@@ -53,14 +53,28 @@ export default interface IComponent {
     /**
      * Passed an `Element`, the component should mount its DOM fragment on that element.
      * Does not need to render. (If this method is called without a previous render, it is a bug).
-     * Example (potentially delegated to a separate class):
+     * Example:
      * <pre>
      *     // this.htmlElement is a HTMLElement, presumably created in the constructor:
      *     parent.replaceChildren(this.htmlElement);
+     *     this.onMounted();
      * <pre>
      * This is also where event listeners should be added, and potentially other side effects.
      */
     mountOn: (parent: Element) => void;
+
+    /**
+     * Called when the component is mounted on the DOM. Intended for side effects that should only be done once, and that
+     * can only be done after the component is mounted in the full DOM document.
+     * Example:
+     * <pre>
+     *         // Perform actions needed after being mounted
+     *         // ...
+     *         // Notify subcomponents
+     *         this.subComponents.forEach(component => component.onMounted());
+     * </pre>
+     */
+    onMounted: () => void;
 
     /**
      * Called when the component is about to be (and before it is) removed from the DOM.
