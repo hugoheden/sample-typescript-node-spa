@@ -29,6 +29,13 @@ export default class DashboardComponent implements IComponent {
     refresh = async () => {
     };
 
+    mountOn = (parent: Element) => {
+        this.componentDom.mountOn(parent);
+    }
+
+    beforeUnmount = () => {
+    }
+
     /** Uses the current (presumably new/updated) props, and perhaps the previous state, to calculate what the next state should be. */
     private static calculateState = (props: Props): DashboardState => {
         return {
@@ -36,10 +43,5 @@ export default class DashboardComponent implements IComponent {
             docTitle: "Dashboard"
         };
     };
-
-    getComponentDom = () => {
-        return this.componentDom;
-    }
-
 
 }

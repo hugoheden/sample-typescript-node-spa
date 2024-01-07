@@ -29,6 +29,14 @@ export default class SettingsComponent implements IComponent {
     refresh = async () => {
     };
 
+    mountOn = (parent: Element) => {
+        this.componentDom.mountOn(parent);
+    }
+
+    beforeUnmount = () => {
+    }
+
+
     /** Uses the current (presumably new/updated) props, and perhaps the previous state, to calculate what the next state should be. */
     private static calculateState = (props: Props): SettingsState => {
         return {
@@ -36,10 +44,6 @@ export default class SettingsComponent implements IComponent {
             docTitle: "Settings"
         };
     };
-
-    getComponentDom = () => {
-        return this.componentDom;
-    }
 
 
 }

@@ -102,7 +102,7 @@ export default class Router {
      * Given a pathname, like "/posts/123/comments/456", return the component that matches that pathname.
      * If no component matches, then the default component is returned.
      */
-    private getMatchingUpdatedComponent = (pathname: string): IComponent => {
+    private updateMatchingComponent = (pathname: string): IComponent => {
         for (const route of this.routes) {
             const component = route.ifMatchingGetUpdatedComponent(pathname);
             if (component !== null) {
@@ -127,12 +127,9 @@ export default class Router {
             window.location.replace(pathname.slice(0, -1));
             return;
         }
-        const component = this.getMatchingUpdatedComponent(pathname);
+        const component = this.updateMatchingComponent(pathname);
         component.render();
-        component.getComponentDom().mountOn(this.componentContainerElement);
-        component.refresh()
-            .then(() => {
-                component.render();
-            });
+        component.mountOn(this.componentContainerElement);
+        component.refresh();
     }
 }

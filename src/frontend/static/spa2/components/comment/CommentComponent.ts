@@ -27,6 +27,14 @@ export default class CommentComponent implements IComponent {
     refresh = async () => {
     };
 
+    mountOn = (parent: Element) => {
+        this.componentDom.mountOn(parent);
+    }
+
+    beforeUnmount = () => {
+    }
+
+
     /** Uses the current (presumably new/updated) props, and perhaps the previous state, to calculate what the next state should be. */
     private static calculateState = (props: Props): CommentState => {
         const postId = parseInt(props.postId);
@@ -39,9 +47,5 @@ export default class CommentComponent implements IComponent {
             commentText: "some comment should be visible here"
         };
     };
-
-    getComponentDom = () => {
-        return this.componentDom;
-    }
 
 }

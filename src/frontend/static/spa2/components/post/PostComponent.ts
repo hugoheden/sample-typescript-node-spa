@@ -26,6 +26,14 @@ export default class PostComponent implements IComponent {
     refresh = async () => {
     };
 
+    mountOn = (parent: Element) => {
+        this.componentDom.mountOn(parent);
+    }
+
+    beforeUnmount = () => {
+    }
+
+
     /** Uses the current (presumably new/updated) props, and perhaps the previous state, to calculate what the next state should be. */
     private static calculateState = (props: Props): PostState => {
         // props.postId is a string. "Convert" it to a number (which is in accordance with our business model).
@@ -38,9 +46,5 @@ export default class PostComponent implements IComponent {
             postDoc: "TODO - get post doc from data fetcher, or something"
         };
     };
-
-    getComponentDom = () => {
-        return this.componentDom;
-    }
 
 }

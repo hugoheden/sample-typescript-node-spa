@@ -1,8 +1,7 @@
 import html from './DashboardDom.fragment.html'
-import IComponentDom from "../../IComponentDom";
 import DashboardState from "./DashboardState";
 
-export default class DashboardDom implements IComponentDom {
+export default class DashboardDom {
     private readonly htmlElement: HTMLElement;
 
     constructor() {

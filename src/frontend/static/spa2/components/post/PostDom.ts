@@ -1,8 +1,7 @@
 import html from './PostDom.fragment.html'
-import IComponentDom from "../../IComponentDom";
 import PostState from "./PostState";
 
-export default class PostDom implements IComponentDom {
+export default class PostDom {
     private readonly htmlElement: HTMLElement;
 
     constructor() {

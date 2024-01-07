@@ -1,8 +1,7 @@
 import html from './CommentDom.fragment.html'
-import IComponentDom from "../../IComponentDom";
 import CommentState from "./CommentState";
 
-export default class CommentDom implements IComponentDom {
+export default class CommentDom {
     private readonly htmlElement: HTMLElement;
 
     constructor() {

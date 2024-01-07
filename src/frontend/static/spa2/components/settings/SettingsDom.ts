@@ -1,8 +1,7 @@
 import html from './SettingsDom.fragment.html'
-import IComponentDom from "../../IComponentDom";
 import SettingsState from "./SettingsState";
 
-export default class SettingsDom implements IComponentDom {
+export default class SettingsDom {
     private readonly htmlElement: HTMLElement;
 
     constructor() {

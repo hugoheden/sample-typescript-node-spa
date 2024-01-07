@@ -82,7 +82,7 @@ export default function registerFatalErrorHandlers(backendLogPath: string, error
     window.onerror = (message: Event | string, source: string | undefined, lineno: number | undefined, colno: number | undefined, error: Error | undefined) => {
         const errorData = buildErrorData_onerror(message, source, lineno, colno, error);
         handleError(errorData);
-        // TODO return false if development mode, otherwise return true
+        // (We could also return false if development mode)
         return true; // Prevent the default browser error handler from running (which logs the error to the console)
     };
 
@@ -90,7 +90,7 @@ export default function registerFatalErrorHandlers(backendLogPath: string, error
         // event.preventDefault();
         const errorData = buildErrorData_onunhandledrejection(event);
         handleError(errorData);
-        // TODO do this only in production mode.
+        // (We also skip this in development mode:)
         event.preventDefault(); // Prevent the default browser error handler from running (which logs the error to the console)
     };
 }
