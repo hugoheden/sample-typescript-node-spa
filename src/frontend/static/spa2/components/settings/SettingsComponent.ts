@@ -18,7 +18,6 @@ export default class SettingsComponent implements IComponent {
      */
     onPropsUpdated = (props: Props) => {
         console.log("SettingsComponent.onPropsUpdated", props);
-        throw new Error("blah blah problem");
         this.state = SettingsComponent.calculateState(props);
     };
 
@@ -33,6 +32,7 @@ export default class SettingsComponent implements IComponent {
 
     /** Uses the current (presumably new/updated) props, and perhaps the previous state, to calculate what the next state should be. */
     private static calculateState = (props: Props): SettingsState => {
+        throw new Error("blah blah problem");
         return {
             props: {...props},
             docTitle: "Settings"
