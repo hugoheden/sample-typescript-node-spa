@@ -4,20 +4,33 @@ import Props from "./Props";
 
 // The `new` indicates that the componentConstructor is not any old function, but a _constructor_ function (for IComponent).
 type ComponentConstructor = new (p: Props) => IComponent;
+type RouteTarget = ComponentConstructor | IComponent;
+// A route-path can be associated with either a component constructor or an already pre-instantiated component.
+// Example (with a constructor): ["/posts/:id", PostComponent]:
+// It is up to the caller which is suitable.
+// If a ComponentConstructor is passed, the Router will instantiate the component lazily, not until needed.
+// A pre-instantiated component is probably useful in rare corner cases, where it is important that
+// the component can perform time-consuming async work even before actually being mounted in the DOM tree.
+type RouteEntry = [string, RouteTarget];
+
+export interface Routes {
+    containerDomElement: HTMLElement,
+    // TODO - defaultComponent: consider allowing a constructor (to enable lazy construction):
+    //  IComponent | new () => IComponent
+    defaultComponent: IComponent,
+    routes: RouteEntry[],
+}
 
 class Route {
-    // Such a constructor function can be referenced (not called) by just writing a class name, like `componentConstructor = Dashboard`.
-    private readonly componentConstructor: ComponentConstructor;
+    private routeTarget: RouteTarget;
     // routePath is just for logging when debugging:
     private readonly routePath: string;
     private readonly pathnameMatcher: RegExp;
     private readonly parameterNames: string[];
-    // Lazily constructed (hence potentially undefined, and mutable):
-    private component: IComponent | undefined;
 
-    constructor(routePath: string, componentConstructor: ComponentConstructor) {
+    constructor(routePath: string, routeTarget: RouteTarget) {
         this.routePath = routePath;
-        this.componentConstructor = componentConstructor;
+        this.routeTarget = routeTarget;
         this.pathnameMatcher = Route.constructPathnameRegex(routePath);
         this.parameterNames = Route.extractParameterNames(routePath);
     }
@@ -62,39 +75,32 @@ class Route {
             return [key, match[i]];
         });
         const propsObject: Props = Object.fromEntries(paramsArray);
-        if (this.component === undefined) {
-            this.component = new this.componentConstructor(propsObject);
+        if (typeof this.routeTarget === 'function') {
+            this.routeTarget = new this.routeTarget(propsObject);
         } else {
-            this.component.onPropsUpdated(propsObject);
+            this.routeTarget.onPropsUpdated(propsObject);
         }
-        return this.component;
+        return this.routeTarget;
     }
 }
 
-export interface Routes {
-    containerDomElement: HTMLElement,
-    defaultComponent: new () => IComponent,
-    // An array with tuples of the form ["/posts/:id", PostComponent]:
-    routes: [string, ComponentConstructor][],
-}
 
 // The Router is where we define the routes and the request handlers for those routes.
 export default class Router {
     private readonly routes: Route[];
     // If no matching route is found, then this default component will be used:
-    private readonly defaultComponent;
+    private readonly defaultComponent: IComponent;
     private readonly componentContainerElement: HTMLElement;
 
     constructor(routes: Routes) {
-        const routesSpec: Routes = routes;
-        this.routes = this.buildRoutes(routesSpec.routes);
-        this.defaultComponent = routesSpec.defaultComponent;
-        this.componentContainerElement = routesSpec.containerDomElement;
+        this.routes = this.buildRoutes(routes.routes);
+        this.defaultComponent = routes.defaultComponent;
+        this.componentContainerElement = routes.containerDomElement;
     }
 
-    private buildRoutes = (r: [string, ComponentConstructor][]): Route[] => {
-        return r.map(([routePath, componentConstructor]) => {
-            return new Route(routePath, componentConstructor);
+    private buildRoutes = (r: [string, RouteTarget][]): Route[] => {
+        return r.map(([routePath, routeTarget]) => {
+            return new Route(routePath, routeTarget);
         });
     }
 
@@ -110,7 +116,7 @@ export default class Router {
             }
         }
         // Default if no match:
-        return new this.defaultComponent();
+        return this.defaultComponent;
     }
 
     /**
@@ -130,6 +136,6 @@ export default class Router {
         const component = this.updateMatchingComponent(pathname);
         component.render();
         component.mountOn(this.componentContainerElement);
-        component.refresh();
+        component.updateAsync();
     }
 }

@@ -13,7 +13,7 @@ import registerFatalErrorHandlers from "./FatalErrorHandler";
 const router = new Router({
     containerDomElement: <HTMLElement>document.querySelector("#app"),
     // To use if no matching route is found:
-    defaultComponent: DashboardComponent,
+    defaultRouteTarget: DashboardComponent,
     routes: [
         ["/", DashboardComponent],
         ["/settings", SettingsComponent],
@@ -24,9 +24,6 @@ const router = new Router({
 });
 
 registerFatalErrorHandlers('/api/log-error', '/error');
-
-// TODO TODO - implement endpoint in backend.
-// TODO TODO - make sure /error is handled correctly wrt routing.
 
 window.addEventListener("popstate", _ => {
     router.route();

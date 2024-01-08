@@ -28,6 +28,8 @@
 
 == TODOs
 
+* For methods where "async is not allowed" - is is allowed to just _spawn_ async jobs without waiting for them? Or not?
+* IComponent: `updateAsync` docs should mention _all_ methods where cancellaation might be necessary... `beforeUnmount` and `onPropsUpdated`...
 * [.line-through]#Components: Pass the complete `ComponentState` to the `ComponentDom` instance#
 * [.line-through]#ComponentDom does the `document.title = ` thing#
 * [.line-through]#Rename `mutableState` to `state`#

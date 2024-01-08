@@ -40,15 +40,53 @@ export default interface IComponent {
     render: () => void;
 
     /**
-     * Used for asynchronous (presumably somewhat slow) construction of a new state based on the props, and re-rendering.
-     * This is useful for fetching data from a server, for example.
-     * <ul>
-     *     <li>Async code can be (and will typically) run here.</li>
-     *     <li>Rendering can be performed here</li>
-     *     <li>If this component maintains any subcomponents, then the signal should be passed to those subcomponents.</li>
-     * </ul>
+     * The `updateAsync` method is responsible for handling asynchronous operations and updating the component's state and UI
+     * based on the results of these operations. Common use cases include fetching data from a server or performing
+     * computations that require significant processing time.
+     *
+     * Guidelines:
+     * - Asynchronous Operations: Ideal for running any asynchronous code like API calls, data processing, etc.
+     * - State Updates: Use the results of async operations to update the component's state. Ensure that state changes are
+     *   handled in a way that avoids race conditions and maintains consistency.
+     * - Conditional Rendering: Based on the state changes, `updateAsync` may perform rendering. This could include showing
+     *   loading indicators, updating the UI with new data, or handling error states.
+     * - Subcomponent Management: If the component has subcomponents, propagate the `updateAsync` signal to them. This ensures
+     *   that the entire component tree is updated based on new data or state changes.
+     * - Error Handling: Implement robust error handling within `updateAsync` to catch and manage exceptions from async
+     *   operations, preventing uncaught errors.
+     * - Cleanup and Cancellation: In preparation for component unmounting, use the `beforeUnmount` method to cancel
+     *   any ongoing asynchronous operations initiated by `updateAsync`. This is essential to prevent side effects or
+     *   state updates from operations that complete after the component has been unmounted.
+     *
+     * Further considerations:
+     * - `updateAsync` is generally most effective when the component is already mounted in the DOM, as it often
+     *   involves updating the component's state and UI based on asynchronous tasks.
+     * - It can also be used in cases where preloading data or preparing the component even before mounting
+     *   (but it should be designed to handle both mounted and non-mounted scenarios).
+     * - Implement a mechanism to check the component's mounting status if certain operations within
+     *   `updateAsync` should only occur when the component is visible or interactable in the DOM.
+     *
+     * Example usage:
+     * <pre>
+     *     updateAsync(): Promise<void> {
+     *         if (!this.isMounted) {
+     *             // Optionally skip or modify operations based on mounting status
+     *             return;
+     *         }
+     *         // Example of fetching data and updating the state
+     *         return fetchDataFromApi().then(data => {
+     *             this.state = processData(data);
+     *             this.render();  // Re-render with the new state
+     *         }).catch(error => {
+     *             this.handleError(error);
+     *         }).finally(() => {
+     *             // Perform any final operations after async tasks complete
+     *             this.updateSubcomponents();  // Update subcomponents if necessary
+     *         });
+     *     }
+     * </pre>
      */
-    refresh: () => Promise<void>;
+    updateAsync: () => Promise<void>;
 
     /**
      * Passed an `Element`, the component should mount its DOM fragment on that element.
@@ -64,14 +102,39 @@ export default interface IComponent {
     mountOn: (parent: Element) => void;
 
     /**
-     * Called when the component is mounted on the DOM. Intended for side effects that should only be done once, and that
-     * can only be done after the component is mounted in the full DOM document.
-     * Example:
+     * Called when the component is successfully mounted in the DOM. This method is intended for
+     * side effects and operations that are dependent on the component being part of the live DOM tree.
+     *
+     * Use cases include:
+     * - Initializing third-party libraries that require a DOM element.
+     * - Starting animations or interactions that depend on the component's position or visibility in the DOM.
+     * - Fetching data or performing operations that are relevant only when the component is visible to the user.
+     *
+     * This method is also suitable for initiating asynchronous operations that need to interact with the DOM or
+     * depend on the component's visibility (e.g., lazy loading of data).
+     *
+     * Remember to propagate the `onMounted` call to all subcomponents to ensure they are also aware of being mounted:
      * <pre>
-     *         // Perform actions needed after being mounted
-     *         // ...
+     *     this.subComponents.forEach(component => component.onMounted());
+     * </pre>
+     *
+     * Example usage:
+     * <pre>
+     *     onMounted(): void {
+     *         // Initialize a library requiring a DOM element
+     *         this.initializeSomeLibrary(this.htmlElement);
+     *
+     *         // Start a DOM-dependent animation
+     *         this.startAnimation();
+     *
+     *         // Fetch data for visible components
+     *         if (this.isVisible()) {
+     *             this.fetchData();
+     *         }
+     *
      *         // Notify subcomponents
      *         this.subComponents.forEach(component => component.onMounted());
+     *     }
      * </pre>
      */
     onMounted: () => void;
