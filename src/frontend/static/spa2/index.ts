@@ -13,7 +13,7 @@ import registerFatalErrorHandlers from "./FatalErrorHandler";
 const router = new Router({
     containerDomElement: <HTMLElement>document.querySelector("#app"),
     // To use if no matching route is found:
-    defaultRouteTarget: DashboardComponent,
+    defaultComponent: new DashboardComponent(),
     routes: [
         ["/", DashboardComponent],
         ["/settings", SettingsComponent],

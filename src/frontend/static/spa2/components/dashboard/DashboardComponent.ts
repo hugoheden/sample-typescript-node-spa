@@ -26,11 +26,14 @@ export default class DashboardComponent implements IComponent {
         this.componentDom.render(this.state);
     };
 
-    refresh = async () => {
+    updateAsync = async () => {
     };
 
     mountOn = (parent: Element) => {
         this.componentDom.mountOn(parent);
+    }
+
+    onMounted = () => {
     }
 
     beforeUnmount = () => {

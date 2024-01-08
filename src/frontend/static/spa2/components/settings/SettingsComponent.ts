@@ -20,17 +20,19 @@ export default class SettingsComponent implements IComponent {
         this.state = SettingsComponent.calculateState(props);
     };
 
-
     /** Uses the current props and state to render/update the component's DOM. */
     render = () => {
         this.componentDom.render(this.state);
     };
 
-    refresh = async () => {
+    updateAsync = async () => {
     };
 
     mountOn = (parent: Element) => {
         this.componentDom.mountOn(parent);
+    }
+
+    onMounted = () => {
     }
 
     beforeUnmount = () => {

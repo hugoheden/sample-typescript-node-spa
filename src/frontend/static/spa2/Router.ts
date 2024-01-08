@@ -134,6 +134,7 @@ export default class Router {
             return;
         }
         const component = this.updateMatchingComponent(pathname);
+        // TODO TODO - prev component: `beforeUnmount` and do unmount
         component.render();
         component.mountOn(this.componentContainerElement);
         component.updateAsync();
