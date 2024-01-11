@@ -16,15 +16,42 @@ import Props from "./Props";
  */
 export default interface IComponent {
     /**
-     * Called by the parent component when new props are passed in. Intended for synchronous (and presumably fast) calculation
-     * of a new state based on the props. Should not cause side effects other than state updates.
-     * <ul>
-     *     <li>Must not run async code.</li>
-     *     <li>No rendering should be done here.</li>
-     *     <li>If this component maintains any subcomponents, then the signal should be passed to those subcomponents.</li>
-     *     <li>Must be idempotent.</li>
-     *     <li>Depending on the props, subcomponents might be added or deleted here.</li>
-     * </ul>
+     * `onPropsUpdated` is invoked when the component receives new props from its parent. This method updates the
+     * component's internal state based on the new props and prepares any dependent or subcomponents for subsequent
+     * rendering. It's a key method for ensuring the component reacts appropriately to prop changes.
+     *
+     * Key Principles of `onPropsUpdated`:
+     * - State Synchronization: Efficiently update the state to reflect the new props, ensuring the component remains responsive.
+     * - No Direct DOM Manipulation: Avoid modifying the DOM directly in this method. The purpose of `onPropsUpdated` is to
+     *   compute and update the internal state only. Direct DOM manipulations should be deferred until the `render` method
+     *   is called. This separation ensures that all components in the subtree have a chance to update their state
+     *   before any rendering occurs, maintaining a consistent and predictable rendering flow.
+     * - Avoid Async Operations: Focus solely on synchronous operations. Asynchronous tasks, like data fetching, should
+     *   be handled in methods designated for async operations like `updateAsync`.
+     * - Idempotency: Ensure that calling this method with the same props results in the same state, without side effects.
+     * - Subcomponent Updates: Propagate the new props to subcomponents to ensure the entire component tree is consistently updated.
+     * - Conditional Logic: Implement logic for adding, removing, or updating subcomponents or internal states based on prop changes.
+     * - Async Work Cancellation: If the component has ongoing asynchronous operations (e.g., data fetching), consider
+     *   canceling them if the new props invalidate the need for these operations. This helps prevent race conditions and
+     *   ensures that the component's state and UI are always up-to-date and relevant.
+     * - Resource Management and Cleanup: If the new props lead to substantial changes in the component's state or subcomponents,
+     *   perform necessary cleanup to release any resources no longer needed or to reset states to their initial conditions.
+     *
+     * Example usage:
+     * <pre>
+     *     onPropsUpdated(props: Props): void {
+     *         // Compute and update state based on new props (and potentially the old state):
+     *         this.state = MyComponent.calculateState(props, this.state);
+     *
+     *         // Pass new props to subcomponents
+     *         this.subComponents.forEach(subComponent => subComponent.onPropsUpdated(props));
+     *
+     *         // Handle any specific changes based on the new props
+     *         if (props.condition) {
+     *             // Adjust subcomponents or state as needed
+     *         }
+     *     }
+     * </pre>
      */
     onPropsUpdated: (props: Props) => void;
 
@@ -106,12 +133,11 @@ export default interface IComponent {
      * side effects and operations that are dependent on the component being part of the live DOM tree.
      *
      * Use cases include:
-     * - Initializing third-party libraries that require a DOM element.
-     * - Starting animations or interactions that depend on the component's position or visibility in the DOM.
-     * - Fetching data or performing operations that are relevant only when the component is visible to the user.
-     *
-     * This method is also suitable for initiating asynchronous operations that need to interact with the DOM or
-     * depend on the component's visibility (e.g., lazy loading of data).
+     * - Initializing third-party libraries that require a DOM element that is mounted in the DOM.
+     * - Starting animations or interactions that needs to interact with the DOM, e.g
+     *      depend on the component's position or visibility in the DOM.
+     * - Initiating asynchronous operations (e.g. fetching data) that are relevant only when the component
+     *      is visible to the user (e.g., lazy loading of data)
      *
      * Remember to propagate the `onMounted` call to all subcomponents to ensure they are also aware of being mounted:
      * <pre>

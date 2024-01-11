@@ -7,8 +7,6 @@ export default class SettingsComponent implements IComponent {
     private readonly componentDom: SettingsDom;
     private state: SettingsState;
 
-    // This particular component has a constructor that accepts a no-param. It is a special component that can be
-    // used _without_ props - as a "default" or "fallback" component if no props were available to the application.
     constructor(initialProps: Props) {
         this.componentDom = new SettingsDom();
         this.state = SettingsComponent.calculateState(initialProps);
